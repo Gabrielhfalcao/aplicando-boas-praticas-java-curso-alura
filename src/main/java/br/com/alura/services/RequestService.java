@@ -1,8 +1,6 @@
 package br.com.alura.services;
 
-import br.com.alura.models.Abrigo;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.URI;

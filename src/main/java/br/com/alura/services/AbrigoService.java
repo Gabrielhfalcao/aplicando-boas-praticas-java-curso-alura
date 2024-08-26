@@ -1,13 +1,12 @@
 package br.com.alura.services;
 
 import br.com.alura.models.Abrigo;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class AbrigoService {
@@ -18,15 +17,24 @@ public class AbrigoService {
         this.client = client;
     }
 
-    public void listarAbrigos() throws IOException, InterruptedException {
+    public void listarAbrigo() throws IOException, InterruptedException {
         String uri = "http://localhost:8080/abrigos";
-        String responseBody = client.dispararRequisicaoGet(uri).body();
-        JsonArray jsonArray = JsonParser.parseString(responseBody).getAsJsonArray();
-        System.out.println("Abrigos cadastrados:");
-        for (JsonElement element : jsonArray) {
-            JsonObject jsonObject = element.getAsJsonObject();
-            long id = jsonObject.get("id").getAsLong();
-            String nome = jsonObject.get("nome").getAsString();
+        HttpResponse<String> response = client.dispararRequisicaoGet(uri);
+        String responseBody = response.body();
+        Abrigo[] abrigos = new ObjectMapper().readValue(responseBody, Abrigo[].class);
+        List<Abrigo> abrigoList = Arrays.stream(abrigos).toList();
+        if(abrigoList.isEmpty()){
+            System.out.println("A lista de abrigos está vazia");
+        } else {
+            System.out.println("Abrigos cadastrados:");
+            listarAbrigos(abrigoList);
+        }
+    }
+
+    private void listarAbrigos(List<Abrigo> abrigoList){
+        for (Abrigo abrigo : abrigoList) {
+            long id = abrigo.getId();
+            String nome = abrigo.getNome();
             System.out.println(id +" - " +nome);
         }
     }
